@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
+import './UploadPage.css';
 
 const UploadPage = () => {
   const [data, setData] = useState(null);
@@ -76,7 +77,7 @@ const UploadPage = () => {
   }
 
   return (
-    <div>
+    <div className="file-upload-container">
       <h1>File Upload</h1>
       <label>For Unstructured Data :</label> &nbsp;
       <input type="file" accept=".txt" onChange={handleTextUpload} />
@@ -86,7 +87,7 @@ const UploadPage = () => {
       <label>For Structured Data :</label> &nbsp;
       <input type="file" accept=".xlsx" onChange={handleExcelUpload} />
       
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
       
       {data && (
         <div>
