@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
-import './UploadPage.css';
 import Spinner from './Spinner';
+import Footer from './Footer';
+import './UploadPage.css';
 
 const UploadPage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [responseData, setResponseData] = useState(null);
 
   const handleTextUpload = (e) => {
     const file = e.target.files[0];
@@ -17,6 +20,8 @@ const UploadPage = () => {
           const textData = event.target.result;
           const jsonData = { content: textData };
           setData(jsonData);
+          setError(null);
+          setSuccess(null);
         } catch (err) {
           setError('Error reading the text file');
         }
@@ -24,6 +29,7 @@ const UploadPage = () => {
       reader.readAsText(file);
     } else {
       setError('Please upload a valid text file');
+      setSuccess(null);
     }
   };
 
@@ -39,6 +45,8 @@ const UploadPage = () => {
           const worksheet = workbook.Sheets[sheetName];
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
           setData(jsonData);
+          setError(null);
+          setSuccess(null);
         } catch (err) {
           setError('Error parsing the Excel file');
         }
@@ -46,6 +54,7 @@ const UploadPage = () => {
       reader.readAsBinaryString(file);
     } else {
       setError('Please upload a valid Excel file');
+      setSuccess(null);
     }
   };
 
@@ -55,7 +64,7 @@ const UploadPage = () => {
       return;
     }
 
-    setLoading(true);
+    setLoading(true); 
     try {
       const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
         method: 'POST',
@@ -65,44 +74,58 @@ const UploadPage = () => {
         body: JSON.stringify(data),
       });
 
+      const responseBody = await response.json();
+
       if (response.ok) {
-        alert('Data submitted successfully!');
+        setResponseData(responseBody); 
+        setSuccess('Data submitted successfully!');
+        setError(null);
       } else {
-        alert('Failed to submit data');
+        setError('Failed to submit data');
       }
     } catch (err) {
       setError('Error submitting data to API');
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   };
 
-  const handleTextAreaUpload = (event) => {
-    setData(event.target.value);
+  const handleTextAreaChange = (event) => {
+    try {
+      const textData = event.target.value;
+      const jsonData = { content: textData };
+      setData(jsonData);
+      setError(null);
+      setSuccess(null);
+    } catch (err) {
+      setError('Error reading the text from Text Area Field');
+    }
   }
 
   return (
     <div className="file-upload-container">
       <h1>File Upload</h1>
-      <label>For Unstructured Data :</label> &nbsp;
+      <label>For Structured Data</label>
       <input type="file" accept=".txt" onChange={handleTextUpload} />
-      <label>Or Enter Text Directly :</label>&nbsp;
-      <textarea onChange={handleTextAreaUpload}></textarea>
+      &nbsp;<label>Or Enter text directly :</label>
+      <textarea onChange={handleTextAreaChange}></textarea>
       <br></br><br></br>
-      <label>For Structured Data :</label> &nbsp;
       <input type="file" accept=".xlsx" onChange={handleExcelUpload} />
       
-      {error && <p className="error-message" style={{ color: 'red' }}>{error}</p>}
+      {error && <p className="error-message">{error}</p>}
+      {success && <p className="success-message">{success}</p>}
       
       {data && (
         <div>
           <h3>Parsed Data:</h3>
           <pre>{JSON.stringify(data, null, 2)}</pre>
-          <button onClick={handleSubmit}>Submit Data to API</button>
+          <button onClick={handleSubmit} disabled={loading}>Submit Data to API</button>
         </div>
       )}
 
-      {loading && <Spinner/>}
+      {loading && <Spinner />} 
+
+      <Footer responseData={responseData} />
     </div>
   );
 };
