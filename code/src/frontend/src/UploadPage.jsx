@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import * as XLSX from 'xlsx';
 import './UploadPage.css';
+import Spinner from './Spinner';
 
 const UploadPage = () => {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleTextUpload = (e) => {
     const file = e.target.files[0];
@@ -53,6 +55,7 @@ const UploadPage = () => {
       return;
     }
 
+    setLoading(true);
     try {
       const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
         method: 'POST',
@@ -69,6 +72,8 @@ const UploadPage = () => {
       }
     } catch (err) {
       setError('Error submitting data to API');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -96,6 +101,8 @@ const UploadPage = () => {
           <button onClick={handleSubmit}>Submit Data to API</button>
         </div>
       )}
+
+      {loading && <Spinner/>}
     </div>
   );
 };
