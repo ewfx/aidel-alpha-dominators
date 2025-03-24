@@ -171,108 +171,117 @@ def buildModel():
     df["Entity Type"] = df.apply(lambda x: classify_entity(x["Receiver Name"], x["Receiver Country"]), axis=1)
     print(df.head())
 
-
-# @app.post("/upload")
-# async def upload_files(excelFile: UploadFile = File(...), txtFile: UploadFile = File(...)):
-
-    # if not excelFile or not txtFile:
-    #     raise HTTPException(status_code=400, detail="No file part")
-
+# def fetch_risky_transaction_type(transaction, threshold=60):
+#     receiver_name = transaction["Receiver Name"]
     
-
-    # # Process the Excel file directly from memory
-    # df = pd.read_excel(excelFile.file, engine='openpyxl')
-    # print('---------------------df---------------------')
-    # print(df)
-    # print('-------------------------------------------')
-    # # Extract entities from structured data
-    # df["Entities"] = df["Payer Name"] + ", " + df["Receiver Name"]
-    # print('---------------------df["entities"]---------------------')
-    # print(df["Entities"])
-    # print('---------------------------------------------------------')
-    # df["Entities"] = df["Entities"].str.replace(r"[^a-zA-Z0-9\s]", "", regex=True)
-    # print('---------------------df["entities"]---------------------')
-    # print(df["Entities"])
-    # print('---------------------------------------------------------')
-
-    #  # Read unstructured data (TXT)
-    # unstructured_text = (await txtFile.read()).decode("utf-8")
-
-    #   # Extract entities from unstructured text
-    # extracted_entities = extract_entities(unstructured_text)
-
-    #   # Combine and deduplicate entity list
-    # unique_entities = list(set(df["Entities"].sum().split(", ") + list(extracted_entities.keys())))
-    # print('---------------------unique_entities---------------------')
-    # print(unique_entities)  
-    # print('---------------------------------------------------------')
-    # # Entity risk analysis
-    # results = []
-    # for entity in unique_entities:
-    #     entity_data = get_company_data(entity)
-    #     country = entity_data["jurisdiction_code"] if entity_data else "Unknown"
-    #     risk_score = calculate_risk_score(entity, country)
-
-    #     results.append({
-    #         "Entity": entity,
-    #         "Entity Type": extracted_entities.get(entity, "Unknown"),
-    #         "Risk Score": risk_score,
-    #         "Supporting Evidence": ["OpenCorporates", "Sanctions List"] if risk_score > 0.8 else ["OpenCorporates"],
-    #         "Confidence Score": round(0.8 + (risk_score / 10), 2),
-    #         "Reason": f"Entity {entity} operates in {country} with risk score {risk_score}."
-    #     })
-    # print(results)
-    # return {
-    #     'results': results
-    # }
-
-# @app.post("/upload")
-# async def upload_files(excelFile: Optional[UploadFile] = File(None), txtFile: Optional[UploadFile] = File(None)):
-
-#     if not excelFile and not txtFile:
-#         raise HTTPException(status_code=400, detail="No file part")
-
-#     merged_json = {}
-#     transaction_data = ''
-#     txt_content = ''
-
-#     # Process the Excel file directly from memory
-#     if excelFile:
-#         excel_data = await excelFile.read()
-#         df = pd.read_excel(io.BytesIO(excel_data))
-#         transaction_data = df.to_string(index=False)
-#         excel_json = df.to_json(orient='records')
-#         merged_json["excel_data"] = json.loads(excel_json)
-
-#         # Extract and normalize entities from the Excel data
-#         normalized_entities = process_excel_data(excel_data)
-#         print(normalized_entities)
-
-#     # Process the TXT file directly from memory
-#     if txtFile:
-#         txt_data = await txtFile.read()
-#         txt_content = txt_data.decode('utf-8')
-#         txt_json = json.dumps({"content": txt_content})
-#         merged_json["txt_data"] = json.loads(txt_json)
-
+#     best_match = None
+#     highest_score = 0
     
-
-#     # merged_text = json.dumps(merged_json, indent=2)
-
-#     # print(extract_entities(txt_content))
-#     # print(extract_entities(transaction_data))
-
-#     return {
-#         'message': 'Files uploaded and processed successfully',
-#         'merged_data': merged_json
-#     }
-
-
-if __name__ == '__main__':
-    # import uvicorn
-    # uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
-    # print(get_company_data('Apple Inc.'))
+#     for risky_type in risky_transaction_types:
+#         score = fuzz.token_sort_ratio(receiver_name, risky_type)
+        
+#         if score > highest_score:
+#             highest_score = score
+#             best_match = risky_type
     
-    # print(fetch_shell_companies())
-    # print("Hello World")
-    buildModel()
+#     if highest_score >= threshold:
+#         return best_match, highest_score
+#     return None, highest_score
+
+
+def match_entities(entities, categories, threshold=0.5):
+    """Match entities with categories using spaCy similarity."""
+    matched_results = {category: [] for category in categories}
+    for entity in entities:
+        entity_doc = nlp(entity)
+        for category, values in categories.items():
+            for value in values:
+                value_doc = nlp(value)
+                similarity = entity_doc.similarity(value_doc)
+                if similarity > threshold:
+                    matched_results[category].append((entity, value, similarity))
+    return matched_results
+
+
+@app.post("/upload")
+async def upload_files(excelFile: UploadFile = File(...), txtFile: UploadFile = File(...)):
+    if not excelFile or not txtFile:
+        raise HTTPException(status_code=400, detail="No file part")
+
+    # Process the Excel file directly from memory
+    df = pd.read_excel(excelFile.file, engine='openpyxl')
+    print('---------------------df---------------------')
+    print(df)
+    print('-------------------------------------------')
+
+    # Define categories for matching
+    categories = {
+        "Shell Companies": fetch_shell_companies(),
+        "NGOs": fetch_ngo_list(),
+        "Blacklisted Entities": fetch_blacklisted_entities(),
+        "High-Risk Jurisdictions": fetch_fatf_high_risk_countries()
+    }
+
+    # Match each column with categories and calculate confidence scores
+    results = []
+    for index, row in df.iterrows():
+        row_result = {"Row": index + 1, "Matches": [], "Risk Score": 0}
+        category_scores = {"Blacklisted Entities": [], "Shell Companies": [], "High-Risk Jurisdictions": [], "NGOs": []}
+
+        for column in df.columns:
+            entity = str(row[column])
+            best_match = None
+            highest_similarity = 0
+            best_category = None
+
+            entity_doc = nlp(entity)
+            for category, values in categories.items():
+                for value in values:
+                    value_doc = nlp(value)
+                    similarity = entity_doc.similarity(value_doc)
+                    if similarity > 0.5:  # Only consider similarities greater than 50%
+                        category_scores[category].append(similarity)
+                    if similarity > highest_similarity:
+                        highest_similarity = similarity
+                        best_match = value
+                        best_category = category
+
+            row_result["Matches"].append({
+                "Column": column,
+                "Best Match": best_match,
+                "Category": best_category,
+                "Confidence Score": round(highest_similarity, 2)
+            })
+
+        # Calculate risk score
+        weights = {
+            "Blacklisted Entities": 0.9,
+            "Shell Companies": 0.8,
+            "High-Risk Jurisdictions": 0.7,
+            "NGOs": 0.6
+        }
+        total_score = 0
+        for category, scores in category_scores.items():
+            if scores:
+                weighted_average = sum(scores) / len(scores) * weights[category]
+                total_score += weighted_average
+        row_result["Risk Score"] = round(total_score / 4, 2)  # Average by 4 categories
+        results.append(row_result)
+    # Print results
+    for result in results:
+        print(f"Row {result['Row']}:")
+        for match in result["Matches"]:
+            print(f"  Column: {match['Column']}, Best Match: {match['Best Match']}, "
+                  f"Category: {match['Category']}, Confidence Score: {match['Confidence Score']}")
+        print(f"  Risk Score: {result['Risk Score']}")
+
+    return {"message": "Files uploaded and processed successfully", "results": results}
+
+# if __name__ == '__main__':
+#     # import uvicorn
+#     # uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+#     # print(get_company_data('Apple Inc.'))
+    
+#     # print(fetch_shell_companies())
+#     # print("Hello World")
+#     buildModel()
