@@ -2,8 +2,8 @@ import React from 'react';
 import './Spinner.css'; 
 const Spinner = () => {
   return (
-    <div className="spinner-container">
-      <div className="spinner"></div>
+    <div role="containerRole" className="spinner-container">
+      <div role="insideRole" className="spinner"></div>
     </div>
   );
 };
