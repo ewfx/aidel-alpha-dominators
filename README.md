@@ -14,6 +14,8 @@
     - [Risk Reporting](#risk-reporting)
   - [🛠️ How We Built It](#️-how-we-built-it)
     - [Backend Architecture](#backend-architecture)
+      - [🌐 API Endpoints](#-api-endpoints)
+        - [`/upload`](#upload)
     - [External Data Integration](#external-data-integration)
     - [Frontend Development](#frontend-development)
     - [Data Processing Pipeline](#data-processing-pipeline)
@@ -35,7 +37,8 @@ Currently data analysts spend a significant amount of manual time and effort to 
 📹 [Video Demo](#) (if applicable)  
 🖼️ Screenshots:
 
-![Screenshot 1](link-to-image)
+![Screenshot 1 - Structured Dataset](artifacts/resources/screenshot_1_structured_dataset.jpeg)
+![Screenshot 2 - Unstructured Dataset](artifacts/resources/screenshot_2_unstructured_dataset.jpeg)
 
 ## 💡 Inspiration
 
@@ -49,10 +52,10 @@ Small banks struggle to maintain comprehensive risk assessment systems
 Modern financial crimes are getting more complex with shell companies and international networks
 We thought, "What if we could build something that combines the cutting-edge tech - APIs, machine learning, and modern web development - to help solve this?". Our goal became clear: create an intelligent system that could:
 
-Automatically extract and analyze entity information
-Cross-reference multiple international databases
-Calculate risk scores based on real banking parameters
-Present findings in a way that makes analysts' jobs easier
+- Automatically extract and analyze entity information
+- Cross-reference multiple international databases
+- Calculate risk scores based on real banking parameters
+- Present findings in a way that makes analysts' jobs easier
 
 ## ⚙️ What It Does
 
@@ -95,10 +98,21 @@ We developed this risk assessment system using a modern tech stack with separate
 
 - Built a RESTful API using **FastAPI** framework for high performance and async support
 - Implemented key data processing modules:
-  - [`risk_scoring.py`](code/src/backend/risk_scoring.py) for calculating transaction risk levels
-  - [`data_enrichment.py`](code/src/backend/data_enrichment.py) for augmenting transaction data
-  - [`entity_classification.py`](code/src/backend/entity_classification.py) for categorizing entities
-  - [`anomaly_detection.py`](code/src/backend/anomaly_detection.py) for identifying suspicious patterns
+  - **Entity Extraction**: Automatic extraction of entities from transaction data
+- **Risk Scoring**: Advanced risk assessment based on multiple parameters
+- **Data Processing**: Handles both structured (Excel) and unstructured (Text) data
+- **External Data Integration**: Connects with multiple authoritative sources
+
+#### 🌐 API Endpoints
+
+##### `/upload`
+
+- **Method**: POST
+- **Description**: Processes files for entity extraction and risk analysis
+- **Accepts**:
+  - Excel files (.xlsx)
+  - Text files (.txt)
+- **Returns**: JSON with risk analysis results
 
 ### External Data Integration
 
@@ -118,7 +132,7 @@ We developed this risk assessment system using a modern tech stack with separate
 
 ### Data Processing Pipeline
 
-1. Raw transaction data ingestion (Excel/CSV formats)
+1. Raw transaction data ingestion (Excel/CSV/Text formats)
 2. Entity extraction and classification
 3. Risk scoring based on multiple parameters
 4. Results visualization and reporting
@@ -163,6 +177,7 @@ Describe the major technical or non-technical challenges your team encountered.
    cd ./code/src/backend
    python -m venv .venv
    .\.venv\Scripts\activate #to activate virtual environment in the terminal
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass #if running .venv is disabled in terminal, execute this first
    pip install -r requirements.txt
    ```
 
@@ -172,7 +187,13 @@ Describe the major technical or non-technical challenges your team encountered.
    fastapi dev api.py
    ```
 
-   It should start the frontend on localhost with port 8000
+   It should start the backend on localhost with port 8000
+
+6. Testing the frontend
+
+   ```sh
+   npm run test # for executing test suite
+   ```
 
 ## 🏗️ Tech Stack
 
@@ -180,11 +201,12 @@ Describe the major technical or non-technical challenges your team encountered.
 - 🔹 Backend: FastAPI
 - 🔹 Data Processing: Pandas
 - 🔹 ML Models: Spacy
+- 🔹 External APIs: Wikidata, UN Sanctions List
 
 ## 👥 Team
 
 - **Shaswata Raha** - [GitHub](https://github.com/shaswata1029)
 - **Anirban Dey** - [GitHub](#)
-- **Utkarsh Kumar** - [GitHub](#)
-- **Subhradeep Maiti** - [GitHub](#)
+- **Utkarsh Kumar** - [GitHub](https://github.com/Utkarsh14022002)
+- **Subhradeep Maiti** - [GitHub](https://github.com/Subhradeep-Maiti)
 - **Shashank Racharla** - [GitHub](#)
