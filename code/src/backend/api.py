@@ -169,7 +169,8 @@ def extract_entities_with_levels(text):
     extracted = [ent.label_ for ent in doc.ents]
     return extracted
 
-def calculate_confidence_scores_with_remark_from_file(row, category_docs, threshold=0.5):
+def calculate_confidence_scores_with_remark_from_file(row, category_docs,excelortxt, threshold=0.5):
+    print(excelortxt)
     """
     Calculate confidence scores for a single row in the dataset based on preprocessed external data categories.
 
@@ -192,11 +193,17 @@ def calculate_confidence_scores_with_remark_from_file(row, category_docs, thresh
     }
     # Iterate over columns in the row
     risk_score = 0
+    # print(row.items())
+    mainvalue=None
     for column, value in row.items():
+        # print(column)
         if not isinstance(value, str) or not value.strip():
             continue  # Skip non-string or empty values
-
-        entity_doc = nlp(value)
+        if excelortxt==0:
+            mainvalue=column
+        else:
+            mainvalue=value
+        entity_doc = nlp(mainvalue)
         for category, docs in category_docs.items():
             for external_doc in docs:
                 if entity_doc.vector_norm == 0 or external_doc.vector_norm == 0:
@@ -205,7 +212,7 @@ def calculate_confidence_scores_with_remark_from_file(row, category_docs, thresh
                 if similarity > highest_confidence and similarity >= threshold:
                     highest_confidence = similarity
                     highest_similarity_category = category
-                    remark = f"{external_doc.text} is {category}"
+                    remark = f"{mainvalue} is {category}"
 
         if highest_similarity_category:
             risk_score = highest_confidence * category_weights[highest_similarity_category]
@@ -237,14 +244,16 @@ Output_results = []
 async def upload_files(excelFile: Optional[UploadFile] = File(None), txtFile: Optional[UploadFile] = File(None)):
     external_data = load_external_data_from_file(external_data_filepath)
     category_docs = preprocess_external_data(external_data)
+    excelortxt=None
     if excelFile:
+        excelortxt
         # Process the Excel file directly from memory
         df = pd.read_excel(excelFile.file, engine='openpyxl')
         results = []
         for _, row in tqdm(df.iterrows(), total=len(df)):
             row_dict = row.to_dict()  # Convert row to dictionary
             result_row = []
-            confidence_scores = calculate_confidence_scores_with_remark_from_file(row_dict, category_docs)
+            confidence_scores = calculate_confidence_scores_with_remark_from_file(row_dict, category_docs,excelortxt)
             extracted_entities = []
             extracted_entities.extend(extract_entity_text(row["Payer Name"]))
             extracted_entities.extend(extract_entity_text(row["Receiver Name"]))
@@ -255,10 +264,11 @@ async def upload_files(excelFile: Optional[UploadFile] = File(None), txtFile: Op
             entity_type.extend(extract_entities_with_levels(row["Receiver Name"]))
             entity_type.extend(extract_entities_with_levels(row["Transaction Details"]))
             
-            entity_type_str = ', '.join(entity_type)
+            # entity_type_str = ', '.join(entity_type)
+            entity_type_str = '[' + ', '.join(entity_type) + ']'
             # Combine entities into a comma-separated string
-            extracted_entities_str = ', '.join(extracted_entities)
-
+            # extracted_entities_str = ', '.join(extracted_entities)
+            extracted_entities_str = '[' + ', '.join(extracted_entities) + ']'
             result_row.append({"Transaction ID": row["Transaction ID"], "Extracted Entities": extracted_entities_str,"Entity Type": entity_type_str,"Supporting Evidence": ["Wikidata", "Sanctions List"], **confidence_scores})
             results.append(result_row)
 
@@ -266,13 +276,14 @@ async def upload_files(excelFile: Optional[UploadFile] = File(None), txtFile: Op
                 "results": results}
 
     elif txtFile:
+        excelortxt=0
         # Read unstructured data (TXT)
         unstructured_text = (await txtFile.read()).decode("utf-8")
         # print(unstructured_text)
         results = []
         # Extract entities from unstructured text
         extracted_entities = extract_entities(unstructured_text)
-        confidence_scores = calculate_confidence_scores_with_remark_from_file(extracted_entities, category_docs)
+        confidence_scores = calculate_confidence_scores_with_remark_from_file(extracted_entities, category_docs,excelortxt)
         results.append({"Extracted Entities": list(extracted_entities.keys()),"Entity Type": list(extracted_entities.values()),"Supporting Evidence": ["Wikidata", "Sanctions List"], **confidence_scores})
         # print(list(extracted_entities.keys()))
         # print(list(extracted_entities.values()))
