@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
 // import * as XLSX from 'xlsx';
-import Spinner from './Spinner';
+import Spinner from "./Spinner";
 // import Footer from './Footer';
-import axios from 'axios';
-import './UploadPage.css';
+import axios from "axios";
+import "./UploadPage.css";
 
 const UploadPage = () => {
   const [excelFile, setExcelFile] = useState(null);
@@ -13,65 +13,91 @@ const UploadPage = () => {
   const [loading, setLoading] = useState(false);
   const [responseData, setResponseData] = useState(null);
 
+  // Add refs for file inputs
+  const textFileRef = useRef(null);
+  const excelFileRef = useRef(null);
+
   const handleTextUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === 'text/plain') {
+    if (file && file.type === "text/plain") {
       setTextFile(file);
       setError(null);
-      
     } else {
-      setError('Please upload a valid text file');
+      setError("Please upload a valid text file");
       setSuccess(null);
+      setTextFile(null);
+      // Clear the input value
+      e.target.value = "";
     }
   };
 
   const handleExcelUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+    if (
+      file &&
+      file.type ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    ) {
       setExcelFile(file);
       setError(null);
     } else {
-      setError('Please upload a valid Excel file');
+      setError("Please upload a valid Excel file");
       setSuccess(null);
+      setExcelFile(null);
+      // Clear the input value
+      e.target.value = "";
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!excelFile && !textFile) {
-      setError('Please choose a file to upload');
+      setError("Please choose a file to upload");
       return;
     }
     if (excelFile && textFile) {
-      setError('Please upload either a text file or an Excel file, not both');
+      setError("Please upload either a text file or an Excel file, not both");
       setSuccess(null);
+      setExcelFile(null);
+      setTextFile(null);
+      if (textFileRef.current) textFileRef.current.value = "";
+      if (excelFileRef.current) excelFileRef.current.value = "";
       return;
     }
-    setLoading(true); 
+    setLoading(true);
     const formData = new FormData();
-    if (excelFile) formData.append('excelFile', excelFile);
-    if (textFile) formData.append('txtFile', textFile);
+    if (excelFile) formData.append("excelFile", excelFile);
+    if (textFile) formData.append("txtFile", textFile);
     console.log(formData);
     try {
-      const response = await axios.post('http://localhost:8000/upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8000/upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       console.log(response);
       if (response.status === 200) {
-        setResponseData(response.data.results); 
-        setSuccess('Files uploaded and processed successfully!');
+        setResponseData(response.data.results);
+        setSuccess("Files uploaded and processed successfully!");
         setError(null);
       } else {
-        setError('Failed to submit data');
-        sersuccess(null);
+        setError("Failed to submit data");
+        setSuccess(null);
       }
     } catch (err) {
-      setError('Error submitting data to API',err);
+      setError("Error submitting data to API", err);
       setSuccess(null);
+      setExcelFile(null);
+      setTextFile(null);
+      // Clear input values
+      if (textFileRef.current) textFileRef.current.value = "";
+      if (excelFileRef.current) excelFileRef.current.value = "";
     } finally {
-      setLoading(false); 
+      setLoading(false);
     }
   };
 
@@ -88,40 +114,51 @@ const UploadPage = () => {
   // }
   const handleDownload = () => {
     const jsonString = JSON.stringify(responseData, null, 2);
-    const blob = new Blob([jsonString], { type: 'text/plain' });
+    const blob = new Blob([jsonString], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
-    a.download = 'merged_data.txt';
+    a.download = "merged_data.txt";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
   };
 
   return (
-    <div className='page-container'>
-    <div className="file-upload-container">
-      <div className="upload-form">
-      <h1>File Upload</h1>
-      <label htmlFor='unstructuredData'>For UnStructured Data(Format: .txt)</label>
-      <input id="unstructuredData" type="file" accept=".txt" onChange={handleTextUpload} />
-      {/* &nbsp;<label>Or Enter text directly :</label>
+    <div className="page-container">
+      <div className="file-upload-container">
+        <div className="upload-form">
+          <h1>File Upload</h1>
+          <label htmlFor='unstructuredData'>For UnStructured Data(Format: .txt)</label>
+          <input
+            id="unstructuredData" type="file"
+            accept=".txt"
+            onChange={handleTextUpload}
+            ref={textFileRef}
+          />
+          {/* &nbsp;<label>Or Enter text directly :</label>
       <textarea onChange={handleTextAreaChange}></textarea> */}
-      <br></br><br></br>
-      <label htmlFor='structuredData'>For Structured Data(Format: .xlsx/ .xls)</label>
-      <input id="structuredData" type="file" accept=".xlsx, .xls" onChange={handleExcelUpload} />
-      
-      <button onClick={handleSubmit} disabled={loading}>Submit Data to API</button>
+          <br></br>
+          <br></br>
+          <label htmlFor='structuredData'>For Structured Data(Format: .xlsx/ .xls)</label>
+          <input
+            id="structuredData" type="file"
+            accept=".xlsx, .xls"
+            onChange={handleExcelUpload}
+            ref={excelFileRef}
+          />
+
+          <button onClick={handleSubmit} disabled={loading}>
+            Submit Data to API
+          </button>
 
       {error && <p className="error-message" role='errorMessage'>{error}</p>}
       {success && <p className="success-message" data-testid='successMessage'>{success}</p>}
 
-      {loading && <Spinner />} 
+          {loading && <Spinner />}
+        </div>
       </div>
-      
-      
-    </div>
-    
+
       {responseData && (
         <div className="file-upload-container">
         <div className='data-display'>
@@ -131,8 +168,6 @@ const UploadPage = () => {
         </div>
         </div>
       )}
-      
-    
     </div>
   );
 };
