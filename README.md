@@ -99,9 +99,9 @@ We developed this risk assessment system using a modern tech stack with separate
 - Built a RESTful API using **FastAPI** framework for high performance and async support
 - Implemented key data processing modules:
   - **Entity Extraction**: Automatic extraction of entities from transaction data
-- **Risk Scoring**: Advanced risk assessment based on multiple parameters
-- **Data Processing**: Handles both structured (Excel) and unstructured (Text) data
-- **External Data Integration**: Connects with multiple authoritative sources
+  - **Risk Scoring**: Advanced risk assessment based on multiple parameters
+  - **Data Processing**: Handles both structured (Excel) and unstructured (Text) data
+  - **External Data Integration**: Connects with multiple authoritative sources
 
 #### 🌐 API Endpoints
 
