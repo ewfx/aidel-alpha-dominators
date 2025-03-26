@@ -129,9 +129,9 @@ const UploadPage = () => {
       <div className="file-upload-container">
         <div className="upload-form">
           <h1>File Upload</h1>
-          <label>For UnStructured Data(Format: .txt)</label>
+          <label htmlFor='unstructuredData'>For UnStructured Data(Format: .txt)</label>
           <input
-            type="file"
+            id="unstructuredData" type="file"
             accept=".txt"
             onChange={handleTextUpload}
             ref={textFileRef}
@@ -140,9 +140,9 @@ const UploadPage = () => {
       <textarea onChange={handleTextAreaChange}></textarea> */}
           <br></br>
           <br></br>
-          <label>For Structured Data(Format: .xlsx/ .xls)</label>
+          <label htmlFor='structuredData'>For Structured Data(Format: .xlsx/ .xls)</label>
           <input
-            type="file"
+            id="structuredData" type="file"
             accept=".xlsx, .xls"
             onChange={handleExcelUpload}
             ref={excelFileRef}
@@ -152,8 +152,8 @@ const UploadPage = () => {
             Submit Data to API
           </button>
 
-          {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
+      {error && <p className="error-message" role='errorMessage'>{error}</p>}
+      {success && <p className="success-message" data-testid='successMessage'>{success}</p>}
 
           {loading && <Spinner />}
         </div>
@@ -161,13 +161,11 @@ const UploadPage = () => {
 
       {responseData && (
         <div className="file-upload-container">
-          <div className="data-display">
-            <h3>Output:</h3>
-            <pre className="scrollable-pre">
-              {JSON.stringify(responseData, null, 2)}
-            </pre>
-            <button onClick={handleDownload}>Download as TXT</button>
-          </div>
+        <div className='data-display'>
+          <h3 role='Output'>Output:</h3>
+          <pre className="scrollable-pre">{JSON.stringify(responseData, null, 2)}</pre>
+          <button onClick={handleDownload} role='downloadRole'>Download as TXT</button>
+        </div>
         </div>
       )}
     </div>
