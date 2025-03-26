@@ -14,6 +14,8 @@
     - [Risk Reporting](#risk-reporting)
   - [🛠️ How We Built It](#️-how-we-built-it)
     - [Backend Architecture](#backend-architecture)
+      - [🌐 API Endpoints](#-api-endpoints)
+        - [`/upload`](#upload)
     - [External Data Integration](#external-data-integration)
     - [Frontend Development](#frontend-development)
     - [Data Processing Pipeline](#data-processing-pipeline)
@@ -49,10 +51,10 @@ Small banks struggle to maintain comprehensive risk assessment systems
 Modern financial crimes are getting more complex with shell companies and international networks
 We thought, "What if we could build something that combines the cutting-edge tech - APIs, machine learning, and modern web development - to help solve this?". Our goal became clear: create an intelligent system that could:
 
-Automatically extract and analyze entity information
-Cross-reference multiple international databases
-Calculate risk scores based on real banking parameters
-Present findings in a way that makes analysts' jobs easier
+- Automatically extract and analyze entity information
+- Cross-reference multiple international databases
+- Calculate risk scores based on real banking parameters
+- Present findings in a way that makes analysts' jobs easier
 
 ## ⚙️ What It Does
 
@@ -95,10 +97,21 @@ We developed this risk assessment system using a modern tech stack with separate
 
 - Built a RESTful API using **FastAPI** framework for high performance and async support
 - Implemented key data processing modules:
-  - Risk scoring for calculating transaction risk levels
-  - Data enrichment for augmenting transaction data
-  - Entity classification for categorizing entities
-  - Anomaly Detection for identifying suspicious patterns
+  - **Entity Extraction**: Automatic extraction of entities from transaction data
+- **Risk Scoring**: Advanced risk assessment based on multiple parameters
+- **Data Processing**: Handles both structured (Excel) and unstructured (Text) data
+- **External Data Integration**: Connects with multiple authoritative sources
+
+#### 🌐 API Endpoints
+
+##### `/upload`
+
+- **Method**: POST
+- **Description**: Processes files for entity extraction and risk analysis
+- **Accepts**:
+  - Excel files (.xlsx)
+  - Text files (.txt)
+- **Returns**: JSON with risk analysis results
 
 ### External Data Integration
 
@@ -118,7 +131,7 @@ We developed this risk assessment system using a modern tech stack with separate
 
 ### Data Processing Pipeline
 
-1. Raw transaction data ingestion (Excel/CSV formats)
+1. Raw transaction data ingestion (Excel/CSV/Text formats)
 2. Entity extraction and classification
 3. Risk scoring based on multiple parameters
 4. Results visualization and reporting
@@ -181,11 +194,12 @@ Describe the major technical or non-technical challenges your team encountered.
 - 🔹 Backend: FastAPI
 - 🔹 Data Processing: Pandas
 - 🔹 ML Models: Spacy
+- 🔹 External APIs: Wikidata, UN Sanctions List
 
 ## 👥 Team
 
 - **Shaswata Raha** - [GitHub](https://github.com/shaswata1029)
-- **Anirban Dey** - [GitHub](https://github.com/Utkarsh14022002)
-- **Utkarsh Kumar** - [GitHub](#)
+- **Anirban Dey** - [GitHub](#)
+- **Utkarsh Kumar** - [GitHub](https://github.com/Utkarsh14022002)
 - **Subhradeep Maiti** - [GitHub](#)
 - **Shashank Racharla** - [GitHub](#)
