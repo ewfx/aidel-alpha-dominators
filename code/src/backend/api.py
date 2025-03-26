@@ -106,7 +106,7 @@ def fetch_fatf_high_risk_countries():
     return ["Panama", "Cayman Islands", "BVI", "Switzerland", "Iran", "North Korea"]
 
 # Define file path for external data
-external_data_filepath = r"c:\Users\anirb\OneDrive\Documents\GitHub\aidel-alpha-dominators\code\src\backend\external_data.txt"
+external_data_filepath = r"external_data.txt"
 
 # Function to load external data from a text file
 def load_external_data_from_file(filepath):
