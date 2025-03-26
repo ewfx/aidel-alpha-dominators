@@ -192,7 +192,15 @@ Describe the major technical or non-technical challenges your team encountered.
 6. Testing the frontend
 
    ```sh
+   cd ./code/src/frontend
    npm run test # for executing test suite
+   ```
+
+7. Testing the backend
+
+   ```sh
+   cd ./code/test
+   pytest test_api.py
    ```
 
 ## 🏗️ Tech Stack
