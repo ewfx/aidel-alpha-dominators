@@ -37,7 +37,8 @@ Currently data analysts spend a significant amount of manual time and effort to 
 📹 [Video Demo](#) (if applicable)  
 🖼️ Screenshots:
 
-![Screenshot 1](link-to-image)
+![Screenshot 1 - Structured Dataset](artifacts/resources/screenshot_1_structured_dataset.jpeg)
+![Screenshot 2 - Unstructured Dataset](artifacts/resources/screenshot_2_unstructured_dataset.jpeg)
 
 ## 💡 Inspiration
 
@@ -176,7 +177,7 @@ Describe the major technical or non-technical challenges your team encountered.
    cd ./code/src/backend
    python -m venv .venv
    .\.venv\Scripts\activate #to activate virtual environment in the terminal
-   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass .\venv\Scripts\activate #if running .venv is disabled in terminal
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass #if running .venv is disabled in terminal, execute this first
    pip install -r requirements.txt
    ```
 
@@ -187,6 +188,12 @@ Describe the major technical or non-technical challenges your team encountered.
    ```
 
    It should start the backend on localhost with port 8000
+
+6. Testing the frontend
+
+   ```sh
+   npm run test # for executing test suite
+   ```
 
 ## 🏗️ Tech Stack
 
@@ -201,5 +208,5 @@ Describe the major technical or non-technical challenges your team encountered.
 - **Shaswata Raha** - [GitHub](https://github.com/shaswata1029)
 - **Anirban Dey** - [GitHub](#)
 - **Utkarsh Kumar** - [GitHub](https://github.com/Utkarsh14022002)
-- **Subhradeep Maiti** - [GitHub](#)
+- **Subhradeep Maiti** - [GitHub](https://github.com/Subhradeep-Maiti)
 - **Shashank Racharla** - [GitHub](#)
