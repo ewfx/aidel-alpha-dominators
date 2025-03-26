@@ -58,3 +58,8 @@ Describe the major technical or non-technical challenges your team encountered.
 ## 👥 Team
 - **Your Name** - [GitHub](#) | [LinkedIn](#)
 - **Teammate 2** - [GitHub](#) | [LinkedIn](#)
+
+
+.\env\Scripts\activate - to activate virtual environment in the terminal
+pip freeze > requirements.txt
+pip install -r requirements.txt
