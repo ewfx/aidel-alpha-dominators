@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+      "types": ["jest", "node", "@types/jest"],
+      "target": "es5",
+      "jsx": "react-jsx",
+      "baseUrl": "./src",
+      "paths": {
+        "@frontend/*": ["frontend/src/*"]
+      },
+      "allowJs": true
+    },
+    "include": [
+        "frontend/eslint.config.js",
+        "frontend/jest.config.js",
+        "frontend/src/**/*.jsx",
+    ]
+}
