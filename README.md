@@ -95,10 +95,10 @@ We developed this risk assessment system using a modern tech stack with separate
 
 - Built a RESTful API using **FastAPI** framework for high performance and async support
 - Implemented key data processing modules:
-  - [`risk_scoring.py`](code/src/backend/risk_scoring.py) for calculating transaction risk levels
-  - [`data_enrichment.py`](code/src/backend/data_enrichment.py) for augmenting transaction data
-  - [`entity_classification.py`](code/src/backend/entity_classification.py) for categorizing entities
-  - [`anomaly_detection.py`](code/src/backend/anomaly_detection.py) for identifying suspicious patterns
+  - Risk scoring for calculating transaction risk levels
+  - Data enrichment for augmenting transaction data
+  - Entity classification for categorizing entities
+  - Anomaly Detection for identifying suspicious patterns
 
 ### External Data Integration
 
@@ -163,6 +163,7 @@ Describe the major technical or non-technical challenges your team encountered.
    cd ./code/src/backend
    python -m venv .venv
    .\.venv\Scripts\activate #to activate virtual environment in the terminal
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass .\venv\Scripts\activate #if running .venv is disabled in terminal
    pip install -r requirements.txt
    ```
 
@@ -172,7 +173,7 @@ Describe the major technical or non-technical challenges your team encountered.
    fastapi dev api.py
    ```
 
-   It should start the frontend on localhost with port 8000
+   It should start the backend on localhost with port 8000
 
 ## 🏗️ Tech Stack
 
@@ -184,7 +185,7 @@ Describe the major technical or non-technical challenges your team encountered.
 ## 👥 Team
 
 - **Shaswata Raha** - [GitHub](https://github.com/shaswata1029)
-- **Anirban Dey** - [GitHub](#)
+- **Anirban Dey** - [GitHub](https://github.com/Utkarsh14022002)
 - **Utkarsh Kumar** - [GitHub](#)
 - **Subhradeep Maiti** - [GitHub](#)
 - **Shashank Racharla** - [GitHub](#)
