@@ -133,75 +133,6 @@ def clean_entity_name(name):
         return name.title()  # Convert back to title case
     return name
 
-def buildModel():
-    # Load external data on startup
-    external_data = load_external_data_from_file(external_data_filepath)
-    if not external_data["high_risk_jurisdictions"]:
-        external_data["high_risk_jurisdictions"] = fetch_fatf_high_risk_countries()
-    if not external_data["shell_companies"]:
-        external_data["shell_companies"] = fetch_shell_companies()
-    if not external_data["ngos"]:
-        external_data["ngos"] = fetch_ngo_list()
-    if not external_data["blacklisted_entities"]:
-        external_data["blacklisted_entities"] = fetch_blacklisted_entities()
-
-     # Use an absolute path to read the Excel file
-    excel_file_path = r"c:\Users\anirb\OneDrive\Documents\GitHub\aidel-alpha-dominators\code\src\backend\augmented_transaction_data.xlsx"
-    df = pd.read_excel(excel_file_path, sheet_name="Sheet1")
-    print(df)
-    # Apply cleaning function
-    df["Payer Name"] = df["Payer Name"].apply(clean_entity_name)
-    df["Receiver Name"] = df["Receiver Name"].apply(clean_entity_name)
-
-    # Normalize currency values
-    df["Amount"] = df["Amount"].replace("[\$,]", "", regex=True).astype(float)
-
-    # Assign entity types
-    def classify_entity(name, country):
-        if name in external_data["shell_companies"]:
-            return "Shell Company"
-        elif name in external_data["ngos"]:
-            return "NGO"
-        elif name in external_data["blacklisted_entities"]:
-            return "Blacklisted"
-        elif country in external_data["high_risk_jurisdictions"]:
-            return "High-Risk Jurisdiction"
-        else:
-            return "Corporation"
-
-    df["Entity Type"] = df.apply(lambda x: classify_entity(x["Receiver Name"], x["Receiver Country"]), axis=1)
-    print(df.head())
-
-# def fetch_risky_transaction_type(transaction, threshold=60):
-#     receiver_name = transaction["Receiver Name"]
-    
-#     best_match = None
-#     highest_score = 0
-    
-#     for risky_type in risky_transaction_types:
-#         score = fuzz.token_sort_ratio(receiver_name, risky_type)
-        
-#         if score > highest_score:
-#             highest_score = score
-#             best_match = risky_type
-    
-#     if highest_score >= threshold:
-#         return best_match, highest_score
-#     return None, highest_score
-
-
-def match_entities(entities, categories, threshold=0.5):
-    """Match entities with categories using spaCy similarity."""
-    matched_results = {category: [] for category in categories}
-    for entity in entities:
-        entity_doc = nlp(entity)
-        for category, values in categories.items():
-            for value in values:
-                value_doc = nlp(value)
-                similarity = entity_doc.similarity(value_doc)
-                if similarity > threshold:
-                    matched_results[category].append((entity, value, similarity))
-    return matched_results
 
 # Define Entity Levels
 entity_levels = {
@@ -225,12 +156,6 @@ entity_levels = {
     "PERCENT": "Low"
 }
 
-
-# # Function to extract entities and assign levels
-# def extract_entities_with_levels(text):
-#     doc = nlp(str(text))  # Convert NaN to string
-#     extracted = [(ent.text, ent.label_, entity_levels.get(ent.label_, "Unknown")) for ent in doc.ents]
-#     return extracted
 
 # Function to extract entity text
 def extract_entity_text(text):
@@ -357,12 +282,3 @@ async def upload_files(excelFile: Optional[UploadFile] = File(None), txtFile: Op
         raise HTTPException(status_code=400, detail="No file part")
 
     
-# if __name__ == '__main__':
-    # import uvicorn
-    # uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
-    # print(get_company_data('Apple Inc.'))
-    
-    # print(fetch_shell_companies())
-    # print("Hello World")
-    # buildModel()
-    # print(load_external_data_from_file(external_data_filepath))
